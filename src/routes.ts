@@ -73,14 +73,14 @@ const parseProductCard = ($: cheerio.CheerioAPI, el: any, searchQuery: string, p
     if (!title || !productUrl) return null;
 
     const cardText = card.text().replace(/\s+/g, ' ').trim();
-    const exactPriceTexts = card.find('*')
-        .map((_, node) => $(node).text().replace(/\s+/g, ' ').trim())
-        .get()
-        .filter((value) => /^\u20b9\s?[\d,]+(?:\.\d+)?$/.test(value));
-    const priceDisplay = text($, el, '.hZ3P6w') ?? exactPriceTexts[0] ?? null;
-    const originalPriceDisplay = text($, el, '.kRYCnD')
-        ?? exactPriceTexts.find((p) => p !== priceDisplay)
-        ?? null;
+    const priceDisplay = text($, el, '.hZ3P6w') ?? null;
+    const rawOriginalPriceDisplay = text($, el, '.kRYCnD') ?? null;
+    const price = moneyToNumber(priceDisplay);
+    const rawOriginalPrice = moneyToNumber(rawOriginalPriceDisplay);
+    const originalPrice = rawOriginalPrice !== null && price !== null && rawOriginalPrice > price
+        ? rawOriginalPrice
+        : null;
+    const originalPriceDisplay = originalPrice !== null ? rawOriginalPriceDisplay : null;
     const discountText = text($, el, '.HQe8jr')
         ?? card.find('*')
             .map((_, node) => $(node).text().replace(/\s+/g, ' ').trim())
@@ -102,9 +102,9 @@ const parseProductCard = ($: cheerio.CheerioAPI, el: any, searchQuery: string, p
         position,
         productId: card.attr('data-id') ?? productIdFromUrl(productUrl),
         title,
-        price: moneyToNumber(priceDisplay),
+        price,
         priceDisplay,
-        originalPrice: moneyToNumber(originalPriceDisplay),
+        originalPrice,
         originalPriceDisplay,
         discountPercent: discountMatch ? Number(discountMatch[1]) : null,
         rating: ratingText ? Number(ratingText) : null,
