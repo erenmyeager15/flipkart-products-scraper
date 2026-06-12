@@ -1,0 +1,25 @@
+{
+  "name": "flipkart-products-scraper",
+  "version": "1.0.0",
+  "description": "Apify Actor that scrapes public Flipkart product search result data",
+  "type": "module",
+  "main": "dist/main.js",
+  "scripts": {
+    "start": "node dist/main.js",
+    "build": "tsc",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": ["apify", "flipkart", "ecommerce", "products", "prices", "scraper"],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "apify": "^3.2.0",
+    "cheerio": "^1.0.0",
+    "undici": "^6.19.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

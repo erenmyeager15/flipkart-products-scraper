@@ -1,0 +1,10 @@
+{
+  "searchQueries": ["iphone"],
+  "maxResults": 10,
+  "sortBy": "relevance",
+  "proxyConfiguration": {
+    "useApifyProxy": true,
+    "apifyProxyGroups": ["RESIDENTIAL"],
+    "apifyProxyCountry": "IN"
+  }
+}

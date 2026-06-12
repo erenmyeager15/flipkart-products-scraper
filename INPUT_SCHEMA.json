@@ -1,0 +1,45 @@
+{
+  "title": "Flipkart Products Scraper",
+  "description": "Scrape public Flipkart product search result data including title, price, rating, reviews, specs, image, and product URL.",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "searchQueries": {
+      "title": "Search Queries",
+      "description": "Product search terms such as iphone, laptop, shoes, or mixer grinder.",
+      "type": "array",
+      "editor": "stringList",
+      "default": ["iphone"],
+      "prefill": ["iphone"]
+    },
+    "maxResults": {
+      "title": "Max Results",
+      "description": "Maximum products to save across all search queries.",
+      "type": "integer",
+      "editor": "number",
+      "default": 10,
+      "minimum": 1,
+      "maximum": 500
+    },
+    "sortBy": {
+      "title": "Sort By",
+      "description": "Optional Flipkart sort order for search results.",
+      "type": "string",
+      "editor": "select",
+      "default": "relevance",
+      "enum": ["relevance", "popularity", "price_asc", "price_desc", "recency_desc"],
+      "enumTitles": ["Relevance", "Popularity", "Price: Low to High", "Price: High to Low", "Newest First"]
+    },
+    "proxyConfiguration": {
+      "title": "Proxy Configuration",
+      "description": "Proxy settings. Flipkart commonly blocks datacenter traffic, so residential proxy is enabled by default for reliable cloud runs.",
+      "type": "object",
+      "editor": "proxy",
+      "default": {
+        "useApifyProxy": true,
+        "apifyProxyGroups": ["RESIDENTIAL"],
+        "apifyProxyCountry": "IN"
+      }
+    }
+  }
+}
