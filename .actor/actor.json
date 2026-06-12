@@ -4,7 +4,7 @@
   "title": "Flipkart Products Scraper - Prices & Search Data",
   "description": "Scrape public Flipkart product search results: title, price, original price, discount, ratings, reviews, specs, image, product ID, and URL. No login needed.",
   "version": "1.0",
-  "categories": ["ECOMMERCE", "LEAD_GENERATION", "OTHER"],
+  "categories": ["ECOMMERCE", "OTHER"],
   "dockerfile": "Dockerfile",
   "input": "../INPUT_SCHEMA.json",
   "storages": {
