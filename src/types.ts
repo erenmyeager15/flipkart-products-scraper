@@ -15,17 +15,18 @@ export interface ProductRecord {
     searchQuery: string;
     position: number;
     productId: string | null;
-    title: string | null;
+    title: string;
+    brand: string;
     price: number | null;
-    priceDisplay: string | null;
-    originalPrice: number | null;
-    originalPriceDisplay: string | null;
+    mrp: number | null;
     discountPercent: number | null;
+    currency: string;
+    packSize: string;
+    category: string;
     rating: number | null;
     ratingCount: number | null;
-    reviewCount: number | null;
-    specifications: string[];
-    imageUrl: string | null;
+    inStock: boolean | null;
     productUrl: string | null;
+    imageUrl: string | null;
     scrapedAt: string;
 }

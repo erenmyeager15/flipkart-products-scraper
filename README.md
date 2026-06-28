@@ -1,21 +1,22 @@
 # Flipkart Scraper - Prices, Ratings & Product Search Data
 
-Scrape public Flipkart product search results and export clean data to JSON, CSV, Excel, XML, or RSS from the Apify Dataset — no login and no API key required. This Flipkart scraper extracts product title, price, original price, discount, ratings, reviews, specifications, image, product ID, and product URL for any search term.
+Scrape public Flipkart product search results and export clean data to JSON, CSV, Excel, XML, or RSS from the Apify Dataset — no login and no API key required. This Flipkart scraper extracts product titles, brands, prices, MRP, discounts, ratings, product IDs, image URLs, product URLs, and timestamps for any search term.
 
 Built with Node.js 20, TypeScript, and the Apify SDK. It reads Flipkart's server-rendered search pages over lightweight HTTP requests through Apify residential proxies (India), with retries and resilient parsing so cloud runs stay reliable. It does not require login and does not collect private customer, seller, or contact data.
 
+For a low-cost first run, use the default sample input: `iphone`, 10 products, sorted by relevance.
+
 ## What It Extracts
 
-- Product title
+- Source, search query, and result position
 - Flipkart product ID (`pid`)
-- Current price (number and display text)
-- Original price and discount percentage
-- Star rating
-- Rating count and review count
-- Product specifications (RAM, display, camera, warranty, etc.)
-- Product image URL
-- Result position and search query
-- Product URL and scrape timestamp
+- Product title and derived brand
+- Current price, MRP, discount percentage, and currency
+- Pack-size style details where visible in the title/specs
+- Category fallback where detectable
+- Star rating and rating count
+- Product URL and image URL
+- ISO scrape timestamp
 
 ## Use Cases
 
@@ -33,7 +34,14 @@ This Actor uses Apify Pay Per Event pricing. You pay only for clean records deli
 | --- | ---: | ---: | ---: |
 | `product-scraped` | $0.002 | $2.00 | $20.00 |
 
-Apify platform usage (compute and proxy) is billed separately.
+Depending on the active Store pricing configuration, platform usage such as compute and proxy traffic may also be billed by Apify. Keep residential India proxy enabled for reliable cloud runs, and start with a small `maxResults` value.
+
+Cost-control tips:
+
+- Start with one query and `maxResults: 10`.
+- Add more keywords only after the first run confirms the output fits your use case.
+- Keep India residential proxy enabled for reliability, especially for cloud runs.
+- Use the run's maximum cost setting if you want a strict spending cap.
 
 ## Input
 
@@ -68,23 +76,18 @@ Apify platform usage (compute and proxy) is billed separately.
   "position": 1,
   "productId": "MOBHFN6YN2HXB5HE",
   "title": "Apple iPhone 17 (Black, 256 GB)",
+  "brand": "Apple",
   "price": 77900,
-  "priceDisplay": "₹77,900",
-  "originalPrice": 82900,
-  "originalPriceDisplay": "₹82,900",
+  "mrp": 82900,
   "discountPercent": 6,
+  "currency": "INR",
+  "packSize": "256 GB, 6.3 inch",
+  "category": "Mobile Phones",
   "rating": 4.6,
   "ratingCount": 13902,
-  "reviewCount": 877,
-  "specifications": [
-    "256 GB ROM",
-    "16.0 cm (6.3 inch) Super Retina XDR Display",
-    "48MP + 48MP | 18MP Front Camera",
-    "A19 Chip, 6 Core Processor Processor",
-    "Apple One (1) Year Limited Warranty"
-  ],
-  "imageUrl": "https://rukminim2.flixcart.com/image/312/312/xif0q/mobile/s/t/g/-original-imahft5gqkxzyeqa.jpeg?q=70",
+  "inStock": null,
   "productUrl": "https://www.flipkart.com/apple-iphone-17-black-256-gb/p/itm6eb39da622cdd?pid=MOBHFN6YN2HXB5HE",
+  "imageUrl": "https://rukminim2.flixcart.com/image/312/312/xif0q/mobile/s/t/g/-original-imahft5gqkxzyeqa.jpeg?q=70",
   "scrapedAt": "2026-06-12T19:56:31.980Z"
 }
 ```
@@ -95,7 +98,7 @@ Apify platform usage (compute and proxy) is billed separately.
 2. Fetches server-rendered search pages through Apify residential proxies, retrying on 403/429/529 blocks.
 3. Parses each product card and cleans price, rating, review, and specification fields.
 4. Deduplicates by product ID across pages and queries.
-5. Charges `product-scraped` only after a clean record is saved, then writes to the Apify Dataset.
+5. Saves and charges each clean record atomically, then stops before further requests when the user's spending limit is reached.
 
 ## How to Scrape Flipkart (Step by Step)
 

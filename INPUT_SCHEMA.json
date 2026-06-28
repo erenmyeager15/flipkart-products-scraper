@@ -1,6 +1,6 @@
 {
   "title": "Flipkart Products Scraper",
-  "description": "Scrape public Flipkart product search result data including title, price, rating, reviews, specs, image, and product URL.",
+  "description": "Scrape public Flipkart product search result data including title, price, rating, reviews, specs, image, and product URL. Defaults are set for a low-cost iPhone price test.",
   "type": "object",
   "schemaVersion": 1,
   "properties": {
@@ -14,7 +14,7 @@
     },
     "maxResults": {
       "title": "Max Results",
-      "description": "Maximum products to save across all search queries.",
+      "description": "Maximum products to save across all search queries. Start with 10 to keep usage low.",
       "type": "integer",
       "editor": "number",
       "default": 10,
@@ -32,7 +32,7 @@
     },
     "proxyConfiguration": {
       "title": "Proxy Configuration",
-      "description": "Proxy settings. Flipkart commonly blocks datacenter traffic, so residential proxy is enabled by default for reliable cloud runs.",
+      "description": "Proxy settings. Flipkart commonly blocks datacenter traffic, so residential India proxy is enabled by default for reliable cloud runs. Proxy traffic may be billed as platform usage.",
       "type": "object",
       "editor": "proxy",
       "default": {

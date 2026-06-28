@@ -1,0 +1,14 @@
+{
+  "actorOutputSchemaVersion": 1,
+  "title": "Flipkart Products Scraper Output",
+  "description": "Structured Flipkart product records with search queries, positions, product IDs, titles, brands, prices, MRP, discounts, pack sizes, categories, ratings, availability, image URLs, product URLs, and scraped timestamps.",
+  "type": "object",
+  "properties": {
+    "results": {
+      "type": "string",
+      "title": "Flipkart product records",
+      "description": "Clean dataset items containing public Flipkart product catalog, price, discount, rating, stock, image, and URL data.",
+      "template": "{{links.apiDefaultDatasetUrl}}/items"
+    }
+  }
+}

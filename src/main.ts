@@ -65,24 +65,39 @@ async function fetchHtml(url: string): Promise<string | null> {
 }
 
 let saved = 0;
+let spendingLimitReached = false;
 const globalSeen = new Set<string>();
 
 async function pushProducts(products: ProductRecord[]): Promise<void> {
     for (const product of products) {
-        if (saved >= maxResults) return;
+        if (saved >= maxResults || spendingLimitReached) return;
         const key = product.productId ?? product.productUrl ?? product.title ?? '';
         if (globalSeen.has(key)) continue;
-        globalSeen.add(key);
-        await Actor.pushData(product);
-        await Actor.charge({ eventName: 'product-scraped' }).catch(() => null);
-        saved++;
+
+        // Push and charge atomically so unpaid records are never written and
+        // billing failures stop the run instead of being silently ignored.
+        const chargeResult = await Actor.pushData(product, 'product-scraped');
+        const recordWasSaved = chargeResult.chargedCount > 0 || !chargeResult.eventChargeLimitReached;
+        if (recordWasSaved) {
+            globalSeen.add(key);
+            saved += 1;
+        }
+
+        if (chargeResult.eventChargeLimitReached) {
+            spendingLimitReached = true;
+            await Actor.setStatusMessage(`Stopped at the user's spending limit after ${saved} products`);
+            log.warning('User spending limit reached; stopping before more Flipkart requests.');
+            return;
+        }
     }
 }
 
 for (const query of queries) {
+    if (spendingLimitReached) break;
+
     let page = 1;
     let position = 1;
-    while (saved < maxResults && page <= 25) {
+    while (saved < maxResults && page <= 25 && !spendingLimitReached) {
         const url = buildSearchUrl(query, page);
         log.info(`Fetching Flipkart search: ${query}, page ${page}`);
         const html = await fetchHtml(url);
@@ -93,6 +108,9 @@ for (const query of queries) {
             break;
         }
         await pushProducts(products);
+
+        if (spendingLimitReached) break;
+
         log.info(`Parsed ${products.length} product(s) from ${query} page ${page}; saved ${saved}/${maxResults}.`);
         position += products.length;
         page++;
@@ -100,5 +118,8 @@ for (const query of queries) {
     }
 }
 
+if (!spendingLimitReached) {
+    await Actor.setStatusMessage(`Finished with ${saved} unique Flipkart products`);
+}
 log.info(`Flipkart scrape finished. ${saved} products saved.`);
 await Actor.exit();

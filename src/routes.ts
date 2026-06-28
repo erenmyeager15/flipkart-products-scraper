@@ -8,6 +8,14 @@ const text = ($: cheerio.CheerioAPI, el: any, selector: string): string | null =
     return value || null;
 };
 
+const cleanString = (value: unknown): string | null => {
+    if (typeof value !== 'string') return null;
+    const cleaned = value.replace(/\s+/g, ' ').trim();
+    return cleaned || null;
+};
+
+const textOrNA = (value: unknown): string => cleanString(value) ?? 'N/A';
+
 const moneyToNumber = (value: string | null): number | null => {
     if (!value) return null;
     const normalized = value.replace(/[^\d.]/g, '');
@@ -25,8 +33,9 @@ const parseCount = (value: string | null): number | null => {
 };
 
 const cleanUrl = (href: string | undefined): string | null => {
-    if (!href) return null;
-    const decoded = href.replace(/&amp;/g, '&');
+    const cleaned = cleanString(href);
+    if (!cleaned || cleaned.toLowerCase() === 'proxied content') return null;
+    const decoded = cleaned.replace(/&amp;/g, '&');
     const absolute = decoded.startsWith('http') ? decoded : `${FLIPKART_ORIGIN}${decoded}`;
     try {
         const url = new URL(absolute);
@@ -37,6 +46,15 @@ const cleanUrl = (href: string | undefined): string | null => {
     } catch {
         return absolute;
     }
+};
+
+const cleanImageUrl = (value: string | undefined): string | null => {
+    const cleaned = cleanString(value);
+    if (!cleaned || cleaned.toLowerCase() === 'proxied content') return null;
+    if (cleaned.startsWith('//')) return `https:${cleaned}`;
+    if (cleaned.startsWith('http://')) return `https://${cleaned.slice('http://'.length)}`;
+    if (cleaned.startsWith('https://')) return cleaned;
+    return null;
 };
 
 const productIdFromUrl = (url: string | null): string | null => {
@@ -58,21 +76,39 @@ const parseRatingCounts = (value: string | null): { ratingCount: number | null; 
     };
 };
 
+const brandFromTitle = (title: string): string => {
+    const first = title.split(/\s+/).find(Boolean);
+    return first ?? 'N/A';
+};
+
+const packSizeFromTitleAndSpecs = (title: string, specifications: string[]): string => {
+    const joined = [title, ...specifications].join(' ');
+    const matches = joined.match(/\b\d+(?:\.\d+)?\s*(?:GB|TB|MB|kg|g|ml|L|litre|ltr|inch|cm)\b/gi) ?? [];
+    const unique = Array.from(new Set(matches.map((item) => item.replace(/\s+/g, ' ').trim())));
+    return unique.length > 0 ? unique.join(', ') : 'N/A';
+};
+
+const categoryFromSpecs = (specifications: string[]): string => {
+    const joined = specifications.join(' ');
+    if (/\bphone|camera|display|rom|ram\b/i.test(joined)) return 'Mobile Phones';
+    if (/\blaptop|processor|ssd|hdd\b/i.test(joined)) return 'Laptops';
+    return 'N/A';
+};
+
 const parseProductCard = ($: cheerio.CheerioAPI, el: any, searchQuery: string, position: number): ProductRecord | null => {
     const card = $(el);
     const link = card.find('a[href*="/p/"]').first();
     const productUrl = cleanUrl(link.attr('href'));
     const image = card.find('img[src*="rukminim"]').first();
-    const imageUrl = image.attr('src') ?? image.attr('data-src') ?? null;
-    const title = image.attr('alt')?.trim()
+    const imageUrl = cleanImageUrl(image.attr('src') ?? image.attr('data-src'));
+    const title = cleanString(image.attr('alt'))
         || text($, el, '.RG5Slk')
         || text($, el, '.syl9yP')
-        || link.text().replace(/\s+/g, ' ').trim()
+        || cleanString(link.text())
         || null;
 
     if (!title || !productUrl) return null;
 
-    const cardText = card.text().replace(/\s+/g, ' ').trim();
     const priceDisplay = text($, el, '.hZ3P6w') ?? null;
     const rawOriginalPriceDisplay = text($, el, '.kRYCnD') ?? null;
     const price = moneyToNumber(priceDisplay);
@@ -98,21 +134,22 @@ const parseProductCard = ($: cheerio.CheerioAPI, el: any, searchQuery: string, p
 
     return {
         source: 'flipkart',
-        searchQuery,
+        searchQuery: textOrNA(searchQuery),
         position,
         productId: card.attr('data-id') ?? productIdFromUrl(productUrl),
         title,
+        brand: brandFromTitle(title),
         price,
-        priceDisplay,
-        originalPrice,
-        originalPriceDisplay,
+        mrp: originalPrice,
         discountPercent: discountMatch ? Number(discountMatch[1]) : null,
+        currency: 'INR',
+        packSize: packSizeFromTitleAndSpecs(title, specifications),
+        category: categoryFromSpecs(specifications),
         rating: ratingText ? Number(ratingText) : null,
         ratingCount: counts.ratingCount,
-        reviewCount: counts.reviewCount,
-        specifications,
-        imageUrl,
+        inStock: null,
         productUrl,
+        imageUrl,
         scrapedAt: new Date().toISOString(),
     };
 };
