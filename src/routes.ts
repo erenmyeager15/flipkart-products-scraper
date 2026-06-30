@@ -18,7 +18,9 @@ const textOrNA = (value: unknown): string => cleanString(value) ?? 'N/A';
 
 const moneyToNumber = (value: string | null): number | null => {
     if (!value) return null;
-    const normalized = value.replace(/[^\d.]/g, '');
+    const normalized = value
+        .replace(/\bRs\.?/gi, '')
+        .replace(/[^\d.]/g, '');
     if (!normalized) return null;
     const parsed = Number(normalized);
     return Number.isFinite(parsed) ? parsed : null;
@@ -116,7 +118,6 @@ const parseProductCard = ($: cheerio.CheerioAPI, el: any, searchQuery: string, p
     const originalPrice = rawOriginalPrice !== null && price !== null && rawOriginalPrice > price
         ? rawOriginalPrice
         : null;
-    const originalPriceDisplay = originalPrice !== null ? rawOriginalPriceDisplay : null;
     const discountText = text($, el, '.HQe8jr')
         ?? card.find('*')
             .map((_, node) => $(node).text().replace(/\s+/g, ' ').trim())
@@ -131,6 +132,7 @@ const parseProductCard = ($: cheerio.CheerioAPI, el: any, searchQuery: string, p
         .map((_, li) => $(li).text().replace(/\s+/g, ' ').trim())
         .get()
         .filter(Boolean);
+    const cardText = card.text().replace(/\s+/g, ' ').trim();
 
     return {
         source: 'flipkart',
@@ -147,7 +149,7 @@ const parseProductCard = ($: cheerio.CheerioAPI, el: any, searchQuery: string, p
         category: categoryFromSpecs(specifications),
         rating: ratingText ? Number(ratingText) : null,
         ratingCount: counts.ratingCount,
-        inStock: null,
+        inStock: /out of stock|currently unavailable|sold out/i.test(cardText) ? false : null,
         productUrl,
         imageUrl,
         scrapedAt: new Date().toISOString(),

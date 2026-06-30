@@ -1,63 +1,39 @@
-# Flipkart Scraper - Prices, Ratings & Product Search Data
+# Flipkart Product Scraper: Prices & Search
 
-Scrape public Flipkart product search results and export clean data to JSON, CSV, Excel, XML, or RSS from the Apify Dataset — no login and no API key required. This Flipkart scraper extracts product titles, brands, prices, MRP, discounts, ratings, product IDs, image URLs, product URLs, and timestamps for any search term.
+Scrape public Flipkart search result pages and export clean product rows from the Apify Dataset in JSON, CSV, Excel, XML, HTML, or RSS. The Actor is built for price monitoring, catalog research, assortment checks, and lightweight marketplace reports.
 
-Built with Node.js 20, TypeScript, and the Apify SDK. It reads Flipkart's server-rendered search pages over lightweight HTTP requests through Apify residential proxies (India), with retries and resilient parsing so cloud runs stay reliable. It does not require login and does not collect private customer, seller, or contact data.
+It extracts product titles, brands, Flipkart product IDs, prices, MRP, discount percentages, ratings, rating counts, image URLs, product URLs, and scrape timestamps. It does not require a Flipkart login or API key, and it does not collect private customer, seller, account, or contact data.
 
-For a low-cost first run, use the default sample input: `iphone`, 10 products, sorted by relevance.
+The default run is intentionally small: one `iphone` search result sorted by relevance with Apify Residential proxy in India.
 
-## What It Extracts
+## What you get
 
-- Source, search query, and result position
+- Search query and product position
 - Flipkart product ID (`pid`)
 - Product title and derived brand
 - Current price, MRP, discount percentage, and currency
-- Pack-size style details where visible in the title/specs
-- Category fallback where detectable
+- Pack-size details when visible in the listing text
+- Basic category fallback when detectable from listing specs
 - Star rating and rating count
 - Product URL and image URL
-- ISO scrape timestamp
+- Timestamp for each saved row
 
-## Use Cases
+## Common uses
 
-1. E-commerce price monitoring and repricing across Flipkart listings.
-2. Product catalog and assortment research for a brand or category.
-3. Discount and rating analysis to spot deals and best-sellers.
-4. Competitive tracking of how rivals rank for key search terms.
-5. Marketplace trend reports and dashboards over time.
+1. Track product prices, MRP, discounts, and ratings for important Flipkart keywords.
+2. Compare search visibility and price positioning across competing products.
+3. Build small catalog snapshots for dashboards or ecommerce reports.
+4. Monitor deal pages or category keywords over time.
+5. Enrich internal product lists with public Flipkart listing metadata.
 
-## Pricing
+## Quick start
 
-This Actor uses Apify Pay Per Event pricing. You pay only for clean records delivered to the dataset — failed, blocked, or empty results are not billed.
-
-| Event name | Price per event | 1,000 results | 10,000 results |
-| --- | ---: | ---: | ---: |
-| `product-scraped` | $0.002 | $2.00 | $20.00 |
-
-Depending on the active Store pricing configuration, platform usage such as compute and proxy traffic may also be billed by Apify. Keep residential India proxy enabled for reliable cloud runs, and start with a small `maxResults` value.
-
-Cost-control tips:
-
-- Start with one query and `maxResults: 10`.
-- Add more keywords only after the first run confirms the output fits your use case.
-- Keep India residential proxy enabled for reliability, especially for cloud runs.
-- Use the run's maximum cost setting if you want a strict spending cap.
-
-## Input
-
-| Field | Type | Required | Default | Description |
-| --- | --- | --- | --- | --- |
-| `searchQueries` | array | yes | `["iphone"]` | Product search terms such as iphone, laptop, shoes, or mixer grinder. |
-| `maxResults` | integer | no | `10` | Maximum products saved across all search queries. |
-| `sortBy` | string | no | `relevance` | Sort order: relevance, popularity, price low/high, or newest. |
-| `proxyConfiguration` | object | no | Residential, IN | Apify proxy settings. Residential India recommended. |
-
-## Example Input
+Use this input for a low-cost first run:
 
 ```json
 {
   "searchQueries": ["iphone"],
-  "maxResults": 10,
+  "maxResults": 1,
   "sortBy": "relevance",
   "proxyConfiguration": {
     "useApifyProxy": true,
@@ -67,68 +43,89 @@ Cost-control tips:
 }
 ```
 
-## Sample Output
+After the run finishes, open the dataset and export the result as CSV, JSON, Excel, or another Apify-supported format.
+
+## Input
+
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `searchQueries` | array | `["iphone"]` | One to five product search terms, such as `iphone`, `running shoes`, `laptop`, or `mixer grinder`. |
+| `maxResults` | integer | `1` | Maximum product rows to save across all search queries. Range: 1-500. |
+| `sortBy` | string | `relevance` | Flipkart search sort: `relevance`, `popularity`, `price_asc`, `price_desc`, or `recency_desc`. |
+| `proxyConfiguration` | object | Residential India | Apify proxy settings. Residential India proxy is recommended for cloud reliability. |
+
+## Output
+
+A saved dataset item looks like this:
 
 ```json
 {
   "source": "flipkart",
   "searchQuery": "iphone",
   "position": 1,
-  "productId": "MOBHFN6YN2HXB5HE",
-  "title": "Apple iPhone 17 (Black, 256 GB)",
+  "productId": "MOBTEST123",
+  "title": "Apple iPhone 15 (Black, 128 GB)",
   "brand": "Apple",
-  "price": 77900,
-  "mrp": 82900,
-  "discountPercent": 6,
+  "price": 57999,
+  "mrp": 69900,
+  "discountPercent": 17,
   "currency": "INR",
-  "packSize": "256 GB, 6.3 inch",
+  "packSize": "128 GB, 15.49 cm",
   "category": "Mobile Phones",
   "rating": 4.6,
-  "ratingCount": 13902,
+  "ratingCount": 123456,
   "inStock": null,
-  "productUrl": "https://www.flipkart.com/apple-iphone-17-black-256-gb/p/itm6eb39da622cdd?pid=MOBHFN6YN2HXB5HE",
-  "imageUrl": "https://rukminim2.flixcart.com/image/312/312/xif0q/mobile/s/t/g/-original-imahft5gqkxzyeqa.jpeg?q=70",
-  "scrapedAt": "2026-06-12T19:56:31.980Z"
+  "productUrl": "https://www.flipkart.com/apple-iphone-15-black-128-gb/p/itmabc123?pid=MOBTEST123",
+  "imageUrl": "https://rukminim2.flixcart.com/image/312/312/xif0q/mobile/example.jpeg?q=70",
+  "scrapedAt": "2026-06-30T10:00:00.000Z"
 }
 ```
 
-## How It Works
+Optional fields may be `null` when Flipkart does not show them in the search result card.
 
-1. Validates the search queries and builds Flipkart search URLs (with optional sort).
-2. Fetches server-rendered search pages through Apify residential proxies, retrying on 403/429/529 blocks.
-3. Parses each product card and cleans price, rating, review, and specification fields.
-4. Deduplicates by product ID across pages and queries.
-5. Saves and charges each clean record atomically, then stops before further requests when the user's spending limit is reached.
+## Pricing
 
-## How to Scrape Flipkart (Step by Step)
+This Actor uses Apify Pay Per Event pricing.
 
-1. Click **Try for free** / **Run**.
-2. Enter one or more search terms in `searchQueries` (for example, `iphone` or `laptop`).
-3. Set `maxResults` (start small to test) and pick a `sortBy` order.
-4. Keep residential India proxy enabled for reliable results.
-5. Run, then export results as CSV, JSON, or Excel, or pull them via the Apify API.
+| Event | Price |
+| --- | ---: |
+| `product-scraped` | `$0.002` per saved product row |
+| `apify-actor-start` | `$0.00005` per GB when the Actor starts |
 
-## Reliability & Anti-Bot Handling
+The Actor charges product events only when a clean product row is saved to the default dataset. It uses atomic dataset charging, so a billing/spending-limit stop prevents unpaid records from being written.
 
-- Apify residential proxy support, pinned to India by default.
-- Retries on transient failures and 403/429/529 responses.
-- Field-level fallback to `null` when optional data is unavailable.
-- Charges only for clean, saved records — never for blocked or empty pages.
+Platform usage, such as compute and proxy traffic, may also be charged by Apify depending on the run configuration. Residential proxy is more reliable for Flipkart, but it can increase platform usage cost. Start with `maxResults: 1` or a small number before scaling up.
 
-## Known Limits
+## Cost control
 
-- Flipkart's search HTML class names change periodically; if a run returns no records, keep residential proxy enabled and retry.
-- Some fields (discount, original price, rating, reviews) appear only when Flipkart shows them for a listing and may be `null` otherwise.
+- Start with one query and `maxResults: 1`.
+- Increase `maxResults` only after checking the output fields.
+- Keep Residential India proxy enabled for cloud runs.
+- Use the run's maximum cost setting for strict budget control.
+- Split very different keyword groups into separate tasks so each task is easier to monitor.
 
-## Legal and Ethical Use
+## Reliability
 
-Use this Actor for legitimate research, price monitoring, and analysis. You are responsible for complying with Flipkart's terms, privacy laws, and local regulations wherever you use the data.
+Flipkart changes HTML layouts and may throttle scraping traffic. The Actor includes:
 
-## Responsible Use
+- India residential proxy defaults
+- Retry handling for blocked or rate-limited responses
+- Conservative request pacing between result pages
+- Deduplication by product ID, URL, or title
+- A zero-result failure guard so blocked or changed-layout runs do not look like successful empty runs
+- Field-level fallbacks when optional listing data is not visible
 
-This Actor is intended for lawful collection of publicly available information only. Users are responsible for ensuring their use complies with the source website's terms, robots.txt, applicable privacy laws, including India's DPDP Act, and all local regulations.
+## Limits
 
-Do not use this Actor to collect, store, sell, or misuse personal data without a lawful basis. The Actor author is not responsible for misuse by end users.
+- Search-result pages do not always expose stock, full specifications, seller data, or review text.
+- `brand`, `packSize`, and `category` are inferred from listing text and may need downstream cleaning for strict catalog use.
+- This Actor scrapes public search result pages only. It is not an official Flipkart API and is not affiliated with Flipkart.
+
+## Responsible use
+
+Use this Actor for lawful research, monitoring, and analysis of publicly available information. You are responsible for complying with Flipkart's terms, robots.txt, privacy laws, India's DPDP Act where applicable, and all local regulations.
+
+Do not use this Actor to collect, infer, sell, or misuse personal data. The Actor author is not responsible for misuse by end users.
 
 ## License
 

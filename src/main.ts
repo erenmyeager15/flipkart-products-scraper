@@ -1,22 +1,18 @@
 import { Actor, log } from 'apify';
 import { ProxyAgent } from 'undici';
 import type { ActorInput, ProductRecord } from './types.js';
+import { normalizeInput } from './input.js';
 import { parseSearchResults } from './routes.js';
 
 await Actor.init();
 
 const input = ((await Actor.getInput<ActorInput>()) ?? {}) as ActorInput;
 const {
-    searchQueries = ['iphone'],
-    maxResults = 10,
-    sortBy = 'relevance',
+    searchQueries: queries,
+    maxResults,
+    sortBy,
     proxyConfiguration: proxyInput,
-} = input;
-
-const queries = searchQueries.map((q) => q.trim()).filter(Boolean);
-if (queries.length === 0) {
-    throw new Error('At least one search query is required.');
-}
+} = normalizeInput(input);
 
 const proxyConfiguration = (proxyInput?.useApifyProxy || proxyInput?.proxyUrls?.length)
     ? await Actor.createProxyConfiguration(proxyInput)
@@ -49,7 +45,7 @@ async function fetchHtml(url: string): Promise<string | null> {
             const res = await fetch(url, { headers, ...(dispatcher ? { dispatcher } : {}) } as any);
             if (res.status === 429 || res.status === 403 || res.status === 529) {
                 log.warning(`Blocked/rate-limited with HTTP ${res.status}: ${url}`);
-                if (!proxyConfiguration) await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
+                await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
                 continue;
             }
             if (!res.ok) {
@@ -66,6 +62,8 @@ async function fetchHtml(url: string): Promise<string | null> {
 
 let saved = 0;
 let spendingLimitReached = false;
+let failedPages = 0;
+let emptyPages = 0;
 const globalSeen = new Set<string>();
 
 async function pushProducts(products: ProductRecord[]): Promise<void> {
@@ -101,9 +99,13 @@ for (const query of queries) {
         const url = buildSearchUrl(query, page);
         log.info(`Fetching Flipkart search: ${query}, page ${page}`);
         const html = await fetchHtml(url);
-        if (!html) break;
+        if (!html) {
+            failedPages += 1;
+            break;
+        }
         const products = parseSearchResults(html, query, position);
         if (products.length === 0) {
+            emptyPages += 1;
             log.warning(`No products parsed for ${query} page ${page}. Flipkart layout may have changed or blocked this request.`);
             break;
         }
@@ -116,6 +118,13 @@ for (const query of queries) {
         page++;
         await new Promise((r) => setTimeout(r, 600 + Math.floor(Math.random() * 900)));
     }
+}
+
+if (!spendingLimitReached && saved === 0) {
+    throw new Error(
+        `No Flipkart products were saved (${failedPages} failed page(s), ${emptyPages} empty page(s)). `
+        + 'The source may have blocked the request, changed layout, or returned no matching products.',
+    );
 }
 
 if (!spendingLimitReached) {

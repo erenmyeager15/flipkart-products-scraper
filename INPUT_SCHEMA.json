@@ -1,6 +1,6 @@
 {
   "title": "Flipkart Products Scraper",
-  "description": "Scrape public Flipkart product search result data including title, price, rating, reviews, specs, image, and product URL. Defaults are set for a low-cost iPhone price test.",
+  "description": "Scrape public Flipkart search result data including product title, price, MRP, discount, rating, image, product ID, and URL. Defaults save one result for a low-cost test.",
   "type": "object",
   "schemaVersion": 1,
   "properties": {
@@ -10,14 +10,18 @@
       "type": "array",
       "editor": "stringList",
       "default": ["iphone"],
-      "prefill": ["iphone"]
+      "prefill": ["iphone"],
+      "items": { "type": "string" },
+      "minItems": 1,
+      "maxItems": 5
     },
     "maxResults": {
       "title": "Max Results",
-      "description": "Maximum products to save across all search queries. Start with 10 to keep usage low.",
+      "description": "Maximum products to save across all search queries. Start with 1 to keep usage low.",
       "type": "integer",
       "editor": "number",
-      "default": 10,
+      "default": 1,
+      "prefill": 1,
       "minimum": 1,
       "maximum": 500
     },
@@ -27,6 +31,7 @@
       "type": "string",
       "editor": "select",
       "default": "relevance",
+      "prefill": "relevance",
       "enum": ["relevance", "popularity", "price_asc", "price_desc", "recency_desc"],
       "enumTitles": ["Relevance", "Popularity", "Price: Low to High", "Price: High to Low", "Newest First"]
     },
@@ -39,7 +44,13 @@
         "useApifyProxy": true,
         "apifyProxyGroups": ["RESIDENTIAL"],
         "apifyProxyCountry": "IN"
+      },
+      "prefill": {
+        "useApifyProxy": true,
+        "apifyProxyGroups": ["RESIDENTIAL"],
+        "apifyProxyCountry": "IN"
       }
     }
-  }
+  },
+  "required": ["searchQueries"]
 }

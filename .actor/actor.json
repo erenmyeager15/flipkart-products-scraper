@@ -1,12 +1,19 @@
 {
   "actorSpecification": 1,
   "name": "flipkart-products-scraper",
-  "title": "Flipkart Products Scraper - Prices & Search Data",
-  "description": "Scrape public Flipkart product search results with clean titles, brands, prices, MRP, discounts, ratings, product IDs, image URLs, and product URLs.",
+  "title": "Flipkart Product Scraper: Prices & Search",
+  "description": "Scrape public Flipkart search result pages for product titles, brands, prices, MRP, discounts, ratings, product IDs, images, and product URLs.",
   "version": "1.0",
-  "categories": ["ECOMMERCE", "OTHER"],
+  "buildTag": "latest",
+  "categories": ["ECOMMERCE", "MARKETING"],
+  "categoriesVersion": "1.0.0",
   "dockerfile": "Dockerfile",
   "input": "../INPUT_SCHEMA.json",
+  "readme": "../README.md",
+  "exampleRunInput": {
+    "body": "{\"searchQueries\":[\"iphone\"],\"maxResults\":1,\"sortBy\":\"relevance\",\"proxyConfiguration\":{\"useApifyProxy\":true,\"apifyProxyGroups\":[\"RESIDENTIAL\"],\"apifyProxyCountry\":\"IN\"}}",
+    "contentType": "application/json; charset=utf-8"
+  },
   "output": "./output_schema.json",
   "storages": {
     "dataset": {
@@ -46,13 +53,22 @@
   },
   "pricingInfo": {
     "pricingModel": "PAY_PER_EVENT",
-    "reasonForChange": "Initial pay-per-event pricing for clean Flipkart product records.",
+    "reasonForChange": "Store polish keeps the active pay-per-event prices and mirrors the live Actor Start event.",
     "pricingPerEvent": {
       "actorChargeEvents": {
+        "apify-actor-start": {
+          "eventTitle": "Actor Start",
+          "eventDescription": "Charged when the Actor starts running. Number of events charged depends on Actor memory (one event per GB, minimum one event).",
+          "eventPriceUsd": 0.00005,
+          "isOneTimeEvent": true,
+          "isPrimaryEvent": false
+        },
         "product-scraped": {
           "eventTitle": "Product scraped",
           "eventDescription": "Charged once for each clean Flipkart product record saved to the dataset.",
-          "eventPriceUsd": 0.002
+          "eventPriceUsd": 0.002,
+          "isOneTimeEvent": false,
+          "isPrimaryEvent": true
         }
       }
     }
@@ -60,7 +76,7 @@
   "defaultRunOptions": {
     "build": "latest",
     "memoryMbytes": 512,
-    "timeoutSecs": 3600
+    "timeoutSecs": 900
   },
   "minMemoryMbytes": 256,
   "maxMemoryMbytes": 2048
