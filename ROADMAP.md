@@ -1,6 +1,22 @@
 # Flipkart repair and value upgrade — 7 October 2026
 
-## Evidence and publication status
+## Published result
+
+Version **1.0.13**, build `cYmDzigRnwBPLNdZu`, published 7 October 2026 from candidate `fa87b11`. API readback confirms latest build, 256 MB default, no-proxy example input, unchanged prices and notice `NONE` after clearing maintenance. Explicit proxy settings in existing tasks remain unchanged.
+
+All 26 local tests and three approved cloud checks passed. Each cloud run used 256 MB without proxy and returned exactly the requested count with no failed pages. Tight test charge allowances intentionally caused `OUTPUT.status=limited` after the final requested row; no requested rows were missing.
+
+| Owner test | Rows | Duration | Peak memory | Reported platform usage | Estimated recurring margin |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Default iPhone (`02Mq2Pgo17TUZWPDU`) | 1 | 3.225 s | 37.875 MiB | $0.000155606 | 90.51% |
+| iPhone batch (`RuFB1McuRL9omCLsm`) | 25 | 5.066 s | 68.219 MiB | $0.000306630 | 99.23% |
+| Laptop batch (`R8KlwJXk04UzHcBXv`) | 25 | 5.588 s | 81.449 MiB | $0.000314446 | 99.21% |
+
+All 51 rows had valid priced identity and listing specifications; review counts were present in 49 rows. Both batches traversed two pages. Costs were unchanged across readings at least 60 seconds apart and checked at least three minutes after completion. Estimated margins include the 20% commission, not development/build expense, and are not a guarantee for other queries, future access or explicit paid proxy settings.
+
+Build usage: $0.005532. Combined build, run usage and listed Actor fees: **$0.108459**, within the approved $0.15 soft target. Only the one approved build and three tests were used. Release receipt: `outputs/flipkart-upgrade-2026-10-07/release.json` in the parent workspace.
+
+## Initial evidence (before this release)
 
 - Public Actor `tfQ7cesZ7bhIx0bB0`, latest 1.0.12, currently UNDER_MAINTENANCE. Default 512 MB. Live prices: $0.002/product plus $0.00005/start; commission 20%.
 - User's October screenshot shows approximately $0.002 cost, $0.0016 revenue, -$0.00034 profit and -20.61% margin. Rounded dashboard totals are insufficient to reconstruct exact costs.
