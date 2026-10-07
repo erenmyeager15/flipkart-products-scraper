@@ -11,7 +11,7 @@
   "input": "../INPUT_SCHEMA.json",
   "readme": "../README.md",
   "exampleRunInput": {
-    "body": "{\"searchQueries\":[\"iphone\"],\"maxResults\":1,\"sortBy\":\"relevance\",\"proxyConfiguration\":{\"useApifyProxy\":true,\"apifyProxyGroups\":[\"RESIDENTIAL\"],\"apifyProxyCountry\":\"IN\"}}",
+    "body": "{\"searchQueries\":[\"iphone\"],\"maxResults\":1,\"sortBy\":\"relevance\",\"proxyConfiguration\":{\"useApifyProxy\":false}}",
     "contentType": "application/json; charset=utf-8"
   },
   "output": "./output_schema.json",
@@ -79,7 +79,7 @@
   },
   "defaultRunOptions": {
     "build": "latest",
-    "memoryMbytes": 512,
+    "memoryMbytes": 256,
     "timeoutSecs": 900
   },
   "minMemoryMbytes": 256,

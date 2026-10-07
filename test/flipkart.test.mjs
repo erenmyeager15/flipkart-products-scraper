@@ -51,15 +51,20 @@ test('parses and deduplicates Flipkart search cards', () => {
     assert.equal(records[0].productUrl, 'https://www.flipkart.com/apple-iphone-15-black-128-gb/p/itmabc123?pid=MOBTEST123&lid=LSTMOBTEST123');
 });
 
-test('normalizes default input to one low-cost result with India residential proxy', () => {
+test('normalizes default input to one result without paid proxy', () => {
     const input = normalizeInput({});
 
     assert.deepEqual(input.searchQueries, ['iphone']);
     assert.equal(input.maxResults, 1);
     assert.equal(input.sortBy, 'relevance');
-    assert.equal(input.proxyConfiguration?.useApifyProxy, true);
-    assert.deepEqual(input.proxyConfiguration?.apifyProxyGroups, ['RESIDENTIAL']);
-    assert.equal(input.proxyConfiguration?.apifyProxyCountry, 'IN');
+    assert.deepEqual(input.proxyConfiguration, { useApifyProxy: false });
+});
+
+test('explicit Residential and custom proxy choices remain unchanged', () => {
+    for (const proxyConfiguration of [
+        { useApifyProxy: true, apifyProxyGroups: ['RESIDENTIAL'], apifyProxyCountry: 'IN' },
+        { useApifyProxy: false, proxyUrls: ['http://localhost:8899'] },
+    ]) assert.deepEqual(normalizeInput({ proxyConfiguration }).proxyConfiguration, proxyConfiguration);
 });
 
 test('rejects unsafe input sizes and invalid sort values', () => {

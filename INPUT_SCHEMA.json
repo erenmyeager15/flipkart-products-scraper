@@ -46,18 +46,14 @@
     },
     "proxyConfiguration": {
       "title": "Proxy Configuration",
-      "description": "Proxy settings. Flipkart commonly blocks datacenter traffic, so residential India proxy is enabled by default for reliable cloud runs. Proxy traffic may be billed as platform usage.",
+      "description": "No paid proxy by default. Explicit Apify or custom proxies remain supported, with no automatic switch to a paid tier. Access depends on the source and IP; proxy traffic can increase costs, especially for one-product runs.",
       "type": "object",
       "editor": "proxy",
       "default": {
-        "useApifyProxy": true,
-        "apifyProxyGroups": ["RESIDENTIAL"],
-        "apifyProxyCountry": "IN"
+        "useApifyProxy": false
       },
       "prefill": {
-        "useApifyProxy": true,
-        "apifyProxyGroups": ["RESIDENTIAL"],
-        "apifyProxyCountry": "IN"
+        "useApifyProxy": false
       }
     }
   },

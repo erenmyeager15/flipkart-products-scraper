@@ -2,9 +2,7 @@ import type { ActorInput } from './types.js';
 
 const DEFAULT_SEARCH_QUERIES = ['iphone'];
 const DEFAULT_PROXY_CONFIGURATION = {
-    useApifyProxy: true,
-    apifyProxyGroups: ['RESIDENTIAL'],
-    apifyProxyCountry: 'IN',
+    useApifyProxy: false,
 };
 
 const SORT_OPTIONS = ['relevance', 'popularity', 'price_asc', 'price_desc', 'recency_desc'] as const;

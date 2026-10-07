@@ -6,6 +6,7 @@
 - User's October screenshot shows approximately $0.002 cost, $0.0016 revenue, -$0.00034 profit and -20.61% margin. Rounded dashboard totals are insufficient to reconstruct exact costs.
 - Authenticated owner run listing returned zero accessible recent runs. The exact customer failure is unconfirmed.
 - No new cloud build, paid test, price/default-memory change, or public release has been performed for this repair.
+- The user subsequently approved one staging build and at most three no-proxy cloud tests (1 iPhone, 25 iPhones, 25 products in another category) at 256 MB, with a $0.15 soft all-in target. Candidate defaults are now no-proxy/256 MB, but public defaults must change only after all three runs pass quality, reliability, memory and >=25% estimated recurring margin. Delayed billing prevents a guaranteed spending cap. Public prices stay unchanged.
 - One bounded direct local request (no paid proxy) returned 24 identified, priced iPhone listings from approximately 518 KB of HTML. It exposed a phone/processor classification bug, now covered by a regression test. Local access does not prove Apify-cloud connectivity or cloud margin.
 
 ## Implemented locally

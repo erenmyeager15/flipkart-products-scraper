@@ -4,7 +4,7 @@ Scrape public Flipkart search result pages and export clean product rows from th
 
 It extracts product titles, brands, Flipkart product IDs, prices, MRP, discount percentages, ratings, rating counts, image URLs, product URLs, and scrape timestamps. It does not require a Flipkart login or API key, and it does not collect private customer, seller, account, or contact data.
 
-The default run is intentionally small: one `iphone` search result sorted by relevance with Apify Residential proxy in India.
+The default run is intentionally small: one `iphone` search result sorted by relevance, without a paid proxy, at 256 MB. Explicit proxy settings are respected; the Actor never silently upgrades to a paid proxy tier. Existing saved tasks with explicit settings keep those settings.
 
 ## What you get
 
@@ -39,9 +39,7 @@ Use this input for a low-cost first run:
   "maxResults": 1,
   "sortBy": "relevance",
   "proxyConfiguration": {
-    "useApifyProxy": true,
-    "apifyProxyGroups": ["RESIDENTIAL"],
-    "apifyProxyCountry": "IN"
+    "useApifyProxy": false
   }
 }
 ```
@@ -56,7 +54,7 @@ After the run finishes, open the dataset and export the result as CSV, JSON, Exc
 | `maxResults` | integer | `1` | Maximum product rows to save across all search queries. Range: 1-500. |
 | `maxPagesPerQuery` | integer | `4` | Page cap per query, 1–25. Stops earlier at result or spending limits, duplicate pages or request failure. |
 | `sortBy` | string | `relevance` | Flipkart search sort: `relevance`, `popularity`, `price_asc`, `price_desc`, or `recency_desc`. |
-| `proxyConfiguration` | object | Residential India | Apify proxy settings. Residential India proxy is recommended for cloud reliability. |
+| `proxyConfiguration` | object | No proxy | Optional Apify or custom proxy settings. Explicit settings are preserved; no automatic paid fallback. |
 
 ## Output
 
@@ -105,7 +103,7 @@ Platform usage, such as compute and proxy traffic, may also be charged by Apify 
 - Use one result to inspect output, but remember a whole HTML page still needs downloading. A one-result run is not necessarily economical for the developer.
 - For a recurring catalog snapshot, a modest batch can spread the same page-fetch cost across more useful products. Only request rows you need; batching does not guarantee profitability.
 - Increase `maxResults` only after checking the output fields.
-- Keep Residential India proxy enabled for cloud runs.
+- Start without a paid proxy. If your chosen source query is blocked, inspect the diagnostic before explicitly enabling a proxy. Residential traffic may cost more than a small run earns.
 - Set the maximum Actor charge to bound paid result events. This is not a guaranteed cap on all infrastructure or proxy usage.
 - Split very different keyword groups into separate tasks so each task is easier to monitor.
 
@@ -113,7 +111,7 @@ Platform usage, such as compute and proxy traffic, may also be charged by Apify 
 
 Flipkart changes HTML layouts and may throttle scraping traffic. The Actor includes:
 
-- India residential proxy defaults
+- No automatic paid-proxy fallback; explicit Apify/custom proxies are supported
 - Retry handling for blocked or rate-limited responses
 - At most two attempts per page within a 20-second request budget, a 4 MiB decoded response limit, and a 210-second source-fetch budget
 - Proxy connections are destroyed after each attempt; proxy authentication errors do not repeat across all keywords
