@@ -1,6 +1,7 @@
 export interface ActorInput {
     searchQueries?: string[];
     maxResults?: number;
+    maxPagesPerQuery?: number;
     sortBy?: 'relevance' | 'popularity' | 'price_asc' | 'price_desc' | 'recency_desc';
     proxyConfiguration?: {
         useApifyProxy?: boolean;
@@ -25,6 +26,10 @@ export interface ProductRecord {
     category: string;
     rating: number | null;
     ratingCount: number | null;
+    reviewCount: number | null;
+    listingId: string | null;
+    specifications: string[];
+    priceEvidence: { displayedPrice: string | null; displayedMrp: string | null; warnings: string[] };
     inStock: boolean | null;
     productUrl: string | null;
     imageUrl: string | null;

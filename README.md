@@ -15,6 +15,9 @@ The default run is intentionally small: one `iphone` search result sorted by rel
 - Pack-size details when visible in the listing text
 - Basic category fallback when detectable from listing specs
 - Star rating and rating count
+- Review count, listing ID and visible listing specifications
+- `priceEvidence`: raw price/MRP labels and warnings for missing prices, MRP below price, or inconsistent discounts
+- An `OUTPUT` summary with page coverage, skipped unpriced rows and explicit stop reasons
 - Product URL and image URL
 - Timestamp for each saved row
 
@@ -51,6 +54,7 @@ After the run finishes, open the dataset and export the result as CSV, JSON, Exc
 | --- | --- | --- | --- |
 | `searchQueries` | array | `["iphone"]` | One to five product search terms, such as `iphone`, `running shoes`, `laptop`, or `mixer grinder`. |
 | `maxResults` | integer | `1` | Maximum product rows to save across all search queries. Range: 1-500. |
+| `maxPagesPerQuery` | integer | `4` | Page cap per query, 1–25. Stops earlier at result or spending limits, duplicate pages or request failure. |
 | `sortBy` | string | `relevance` | Flipkart search sort: `relevance`, `popularity`, `price_asc`, `price_desc`, or `recency_desc`. |
 | `proxyConfiguration` | object | Residential India | Apify proxy settings. Residential India proxy is recommended for cloud reliability. |
 
@@ -92,16 +96,17 @@ This Actor uses Apify Pay Per Event pricing.
 | `product-scraped` | `$0.002` per saved product row |
 | `apify-actor-start` | `$0.00005` per GB when the Actor starts |
 
-The Actor charges product events only when a clean product row is saved to the default dataset. It uses atomic dataset charging, so a billing/spending-limit stop prevents unpaid records from being written.
+The Actor uses the SDK's dataset-and-charge operation and checks the remaining result allowance before fetching another page. Only identified product rows with a positive, usable listed price are submitted. Storage or billing errors stop the run rather than retrying the same rows; the platform operation is not a transactional guarantee across storage and billing.
 
 Platform usage, such as compute and proxy traffic, may also be charged by Apify depending on the run configuration. Residential proxy is more reliable for Flipkart, but it can increase platform usage cost. Start with `maxResults: 1` or a small number before scaling up.
 
 ## Cost control
 
-- Start with one query and `maxResults: 1`.
+- Use one result to inspect output, but remember a whole HTML page still needs downloading. A one-result run is not necessarily economical for the developer.
+- For a recurring catalog snapshot, a modest batch can spread the same page-fetch cost across more useful products. Only request rows you need; batching does not guarantee profitability.
 - Increase `maxResults` only after checking the output fields.
 - Keep Residential India proxy enabled for cloud runs.
-- Use the run's maximum cost setting for strict budget control.
+- Set the maximum Actor charge to bound paid result events. This is not a guaranteed cap on all infrastructure or proxy usage.
 - Split very different keyword groups into separate tasks so each task is easier to monitor.
 
 ## Reliability
@@ -110,14 +115,21 @@ Flipkart changes HTML layouts and may throttle scraping traffic. The Actor inclu
 
 - India residential proxy defaults
 - Retry handling for blocked or rate-limited responses
-- Conservative request pacing between result pages
+- At most two attempts per page within a 20-second request budget, a 4 MiB decoded response limit, and a 210-second source-fetch budget
+- Proxy connections are destroyed after each attempt; proxy authentication errors do not repeat across all keywords
+- No extra delay or request after reaching the requested result count
 - Deduplication by product ID, URL, or title
-- A zero-result failure guard so blocked or changed-layout runs do not look like successful empty runs
+- Blocked/unknown empty pages fail with a reason. Explicit source no-results messages may succeed with zero rows.
+- Partial output is retained and labelled `partial` in `OUTPUT`, even if the platform run finishes successfully. Consumers must inspect that summary.
 - Field-level fallbacks when optional listing data is not visible
 
 ## Limits
 
 - Search-result pages do not always expose stock, full specifications, seller data, or review text.
+- Specifications are listing highlights, not a full product-page specification table. Review count is not review text.
+- New layout fallbacks and runtime safeguards require fresh cloud verification before any claim of production reliability or profitability.
+- Price warnings are arithmetic/data-quality checks, not proof that an offer is deceptive. Prices are displayed listing prices, not a guaranteed checkout total or pincode-specific offer.
+- No built-in historical price store, scheduled notifications, variant inventory, or seller-contact collection is included.
 - `brand`, `packSize`, and `category` are inferred from listing text and may need downstream cleaning for strict catalog use.
 - This Actor scrapes public search result pages only. It is not an official Flipkart API and is not affiliated with Flipkart.
 

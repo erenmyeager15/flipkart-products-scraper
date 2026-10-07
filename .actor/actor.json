@@ -22,7 +22,7 @@
         "products": {
           "title": "Products",
           "transformation": {
-            "fields": ["source", "searchQuery", "position", "productId", "title", "brand", "price", "mrp", "discountPercent", "currency", "packSize", "category", "rating", "ratingCount", "inStock", "productUrl", "imageUrl", "scrapedAt"]
+            "fields": ["source", "searchQuery", "position", "productId", "listingId", "title", "brand", "price", "mrp", "discountPercent", "currency", "packSize", "category", "rating", "ratingCount", "reviewCount", "specifications", "priceEvidence", "inStock", "productUrl", "imageUrl", "scrapedAt"]
           },
           "display": {
             "component": "table",
@@ -31,6 +31,10 @@
               "searchQuery": { "label": "Search", "format": "text" },
               "position": { "label": "Position", "format": "number" },
               "productId": { "label": "Product ID", "format": "text" },
+              "listingId": { "label": "Listing ID", "format": "text" },
+              "reviewCount": { "label": "Reviews", "format": "number" },
+              "specifications": { "label": "Listing specifications", "format": "text" },
+              "priceEvidence": { "label": "Price evidence", "format": "text" },
               "title": { "label": "Title", "format": "text" },
               "brand": { "label": "Brand", "format": "text" },
               "price": { "label": "Price", "format": "number" },

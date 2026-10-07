@@ -4,6 +4,11 @@
   "description": "Structured Flipkart product records with search queries, positions, product IDs, titles, brands, prices, MRP, discounts, pack sizes, categories, ratings, availability, image URLs, product URLs, and scraped timestamps.",
   "type": "object",
   "properties": {
+    "summary": {
+      "type": "string",
+      "title": "Coverage and stop reasons",
+      "template": "{{links.apiDefaultKeyValueStoreUrl}}/records/OUTPUT"
+    },
     "results": {
       "type": "string",
       "title": "Flipkart product records",

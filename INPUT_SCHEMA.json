@@ -25,6 +25,15 @@
       "minimum": 1,
       "maximum": 500
     },
+    "maxPagesPerQuery": {
+      "title": "Maximum pages per query",
+      "description": "Bound page requests per keyword. Stops earlier at the result/spending limit or on a repeated page. Does not guarantee a monetary spending cap.",
+      "type": "integer",
+      "editor": "number",
+      "default": 4,
+      "minimum": 1,
+      "maximum": 25
+    },
     "sortBy": {
       "title": "Sort By",
       "description": "Optional Flipkart sort order for search results.",

@@ -31,7 +31,7 @@ const asStringArray = (value: unknown, fieldName: string, defaultValue: string[]
 
     if (items.length < 1) fail('must contain at least 1 item.', fieldName);
     if (items.length > 5) fail('must contain at most 5 items.', fieldName);
-    return items;
+    return [...new Set(items)];
 };
 
 const asIntInRange = (value: unknown, fieldName: string, defaultValue: number, min: number, max: number): number => {
@@ -58,7 +58,7 @@ const asProxyConfiguration = (value: unknown): ActorInput['proxyConfiguration'] 
     return value as ActorInput['proxyConfiguration'];
 };
 
-export function normalizeInput(raw: ActorInput = {}): Required<Pick<ActorInput, 'searchQueries' | 'maxResults' | 'sortBy'>> & {
+export function normalizeInput(raw: ActorInput = {}): Required<Pick<ActorInput, 'searchQueries' | 'maxResults' | 'maxPagesPerQuery' | 'sortBy'>> & {
     proxyConfiguration?: ActorInput['proxyConfiguration'];
 } {
     if (!raw || typeof raw !== 'object' || Array.isArray(raw)) fail('Input must be a JSON object.');
@@ -66,6 +66,7 @@ export function normalizeInput(raw: ActorInput = {}): Required<Pick<ActorInput, 
     return {
         searchQueries: asStringArray(raw.searchQueries, 'searchQueries', DEFAULT_SEARCH_QUERIES),
         maxResults: asIntInRange(raw.maxResults, 'maxResults', 1, 1, 500),
+        maxPagesPerQuery: asIntInRange(raw.maxPagesPerQuery, 'maxPagesPerQuery', 4, 1, 25),
         sortBy: asSortBy(raw.sortBy),
         proxyConfiguration: asProxyConfiguration(raw.proxyConfiguration),
     };
